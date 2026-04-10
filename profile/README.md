@@ -12,3 +12,4 @@ A .NET ecosystem for astrophotography automation — from hardware control to au
 
 - **[openphd2-multiscope](https://github.com/SharpAstro/openphd2-multiscope)** — Multiplexing proxy for PHD2's JSON-RPC event API, enabling synchronized dithering across a multi-telescope setup.
 - **[skyfi-forwarder](https://github.com/SharpAstro/skyfi-forwarder)** — Bridges SkyWatcher SkyFi UDP packets to a serial port, letting Wi-Fi-only software control serial-connected mounts.
+- **[FC.SDK](https://github.com/SharpAstro/FC.SDK)** - A replacement for EDSDK.dll that relies entirely on PTP/WPD when available, and also supports using USB directly like libgphoto2 does, but in C#. AOT compatible.
