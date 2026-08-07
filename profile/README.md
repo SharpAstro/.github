@@ -2,6 +2,8 @@
 
 A .NET ecosystem for astrophotography automation — from hardware control to fully automated imaging sessions — plus a set of general-purpose, AOT-compatible .NET libraries that grew out of that work.
 
+**[sharpastro.github.io](https://sharpastro.github.io/)** — what it all does, with screenshots. The planner and sky atlas run [in your browser](https://sharpastro.github.io/tianwen/), no install.
+
 ## Astrophotography
 
 ### Core
