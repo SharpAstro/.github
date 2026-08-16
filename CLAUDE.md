@@ -43,8 +43,16 @@ sibling *source* and the `PackageReference` version is never exercised.
 
 - Editing a sibling changes downstream builds with no version bump anywhere. When a
   change spans repos, build the consumer too before assuming it is done.
-- To reproduce what CI actually restores: `dotnet build -p:UseLocalDirLib=false`
+- To reproduce what CI actually restores: `dotnet build -c Release -p:UseLocalDirLib=false`
   (substitute the relevant switch).
+- **`-c Release` is not optional, and omitting it produces a failure that looks like a
+  broken package.** A published package is built Release, so every `#if DEBUG` type in it
+  is *absent*. A **Debug** consumer of one — the debug-inspector layer is the case here,
+  `DIR.Lib.Diagnostics` and its Console.Lib / SdlVulkan.Renderer / tianwen counterparts —
+  then fails to compile with `CS0234: the namespace 'Diagnostics' does not exist in
+  'DIR.Lib'`. Nothing about that message says "wrong configuration", and against the
+  sibling *source* it compiles, so the natural reading is that the package is broken or
+  the publish dropped files. It is neither: CI builds Release and the package is fine.
 
 ## Versioning
 

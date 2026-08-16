@@ -85,7 +85,18 @@ This makes the org-root layout load-bearing for builds, not just for git identit
 *source*, so a `3.1.*` pin that is four minors behind never shows up locally. It
 only bites in CI and for outside consumers restoring from nuget.org. Treat
 `local-src` in the `deps.sh` output as "this edge is untested locally", and set
-`-p:UseLocalLalrCc=false` to reproduce what CI actually restores.
+`-c Release -p:UseLocalLalrCc=false` to reproduce what CI actually restores.
+
+**Both halves of that command matter.** Dropping the switch tests nothing; dropping
+`-c Release` tests the wrong thing, in a way that reads as a broken package. A published
+package is built Release, so its `#if DEBUG` types are not in it — the debug-inspector
+layer (`DIR.Lib.Diagnostics.DebugInspectorCore` and the `ConsoleDebugInspector` /
+`DebugInspector` classes that consume it) is entirely gated that way. A **Debug** consumer
+restoring that package therefore fails on `CS0234: the namespace 'Diagnostics' does not
+exist in the namespace 'DIR.Lib'`, while the identical source builds fine against the
+sibling. The message names a namespace, not a configuration, so the obvious conclusions —
+the publish dropped files, the pin resolved something old — are both wrong. Same command,
+`-c Release`, and it compiles.
 
 Switches in use: `UseLocalConsoleLib`, `UseLocalDirLib`, `UseLocalFontsLib`,
 `UseLocalLalrCc`, `UseLocalShapingLib`, `UseLocalSharpAstroCodecs`,
