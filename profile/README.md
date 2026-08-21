@@ -2,13 +2,13 @@
 
 A .NET ecosystem for astrophotography automation — from hardware control to fully automated imaging sessions — plus a set of general-purpose, AOT-compatible .NET libraries that grew out of that work.
 
-**[sharpastro.github.io](https://sharpastro.github.io/)** — what it all does, with screenshots. The planner and sky atlas run [in your browser](https://sharpastro.github.io/tianwen/), no install.
+**[sharpastro.github.io](https://sharpastro.github.io/)** — what it all does, with screenshots. The planner and sky atlas run [in your browser](https://sharpastro.github.io/tianwen/), no install. The image viewer is in the Microsoft Store as [Astro Photo Viewer](https://apps.microsoft.com/detail/9pmdzp16tgbg).
 
 ## Astrophotography
 
 ### Core
 
-- **[TianWen](https://github.com/SharpAstro/tianwen)** (天文) — Free, open-source astronomical imaging suite for .NET. Manages cameras, mounts, focusers, filter wheels, and guiders via ASCOM, Alpaca, ZWO, QHYCCD, Meade, Skywatcher, OnStep, and iOptron, with first-class support for multi-OTA (dual-rig) setups. Ships as a NuGet library (`TianWen.Lib`), a cross-platform CLI with an interactive TUI, a headless REST API server (used by [Touch N Stars](https://github.com/Touch-N-Stars/Touch-N-Stars)), a standalone FITS viewer, and an integrated N.I.N.A.-style GUI. Includes an automated session orchestrator (cooling, focusing, guiding, meridian flips, dithering), FITS I/O, star detection, and plate solving.
+- **[TianWen](https://github.com/SharpAstro/tianwen)** (天文) — Free, open-source astronomical imaging suite for .NET. Manages cameras, mounts, focusers, filter wheels, and guiders via ASCOM, Alpaca, ZWO, QHYCCD, Meade, Skywatcher, OnStep, and iOptron, with first-class support for multi-OTA (dual-rig) setups. Ships as a NuGet library (`TianWen.Lib`), a cross-platform CLI with an interactive TUI, a headless REST API server (used by [Touch N Stars](https://github.com/Touch-N-Stars/Touch-N-Stars)), a standalone FITS viewer (in the Microsoft Store as [Astro Photo Viewer](https://apps.microsoft.com/detail/9pmdzp16tgbg)), and an integrated N.I.N.A.-style GUI. Includes an automated session orchestrator (cooling, focusing, guiding, meridian flips, dithering), FITS I/O, star detection, and plate solving.
 - **[TianWen.DAL](https://github.com/SharpAstro/TianWen.DAL)** — Vendor-neutral Device Access Layer defining the core abstractions for consumer astronomical hardware (cameras, mounts, focusers, filter wheels). Pure interfaces, implemented by the device SDKs below.
 
 ### Device SDKs & bindings
