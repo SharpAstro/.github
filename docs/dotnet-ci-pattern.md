@@ -120,6 +120,44 @@ nuspec `<repository url>`; do not report them as version drift:
 - `FreeTypeSharp.UWP` (repo `FreeTypeBindings`) — belongs to **ryancheung**, the
   upstream project this repo forks. The fork ships as `SharpAstro.FreeTypeBindings`.
 
+## SourceLink comes from the SDK, not a package
+
+**Do not add `Microsoft.SourceLink.GitHub` to a repo here.** The .NET SDK has shipped SourceLink
+in-box since .NET 8 and turns it on for any git checkout with a recognised host, so a
+`PackageReference` buys nothing and costs the one thing the SDK's copy cannot: it is a RESTORED
+package, so it is audited, pinnable, and free to go stale. That is exactly what happened on
+2026-09-08, when CVE-2026-62900 (GHSA-23fw-v26w-5fgq) landed against `Microsoft.Build.Tasks.Git`,
+which SourceLink depends on. Thirteen repos warned NU1902 on every build, spread across six pinned
+versions (8.0.0, 10.0.200, 10.0.201, 10.0.203, 10.0.300, 10.0.301), while the four that had never
+referenced it (`AppShell`, `LAN.Lib`, `Lzip.Lib`, `SER.Lib`) were untouched and needed no change.
+All thirteen dropped the reference rather than bumping it.
+
+What actually produces a deterministic, source-linked package is the list below, and the package is
+not on it:
+
+| setting | where | what it does |
+|---|---|---|
+| `ContinuousIntegrationBuild=true` | the workflow's build line | rewrites every source path to a `/_/` root, which is what "deterministic" means to NuGet Package Explorer |
+| `EmbedUntrackedSources` | csproj | generated sources travel inside the PDB |
+| `DebugType embedded` | csproj | the PDB rides in the DLL, so there is no separate symbol package to publish |
+| `PublishRepositoryUrl` | csproj | takes the repository URL and branch from git instead of a hand-written `RepositoryUrl` |
+
+Verify a package rather than assuming, by building it the way CI does and reading the result back:
+
+```bash
+GITHUB_ACTIONS=true dotnet build <proj> -c Release   -p:ContinuousIntegrationBuild=true -p:DebugType=portable -o out
+```
+
+The PDB must carry the document mapping and the nuspec the commit:
+
+```
+{"documents":{"/_/*":"https://raw.githubusercontent.com/SharpAstro/<repo>/<sha>/*"}}
+<repository type="git" url="https://github.com/SharpAstro/<repo>.git" commit="<sha>" />
+```
+
+A repo with a lock file (`FITS.Lib`) needs `dotnet restore --force-evaluate` in the same commit:
+locked-mode restore on CI fails NU1004 on a lock that still lists a reference the project dropped.
+
 ## Conformance checklist for a repo
 
 - [ ] `<VersionMajorMinor>` in root `Directory.Build.props`, and CI reads it via
@@ -127,6 +165,8 @@ nuspec `<repository url>`; do not report them as version drift:
 - [ ] `DOTNET_NOLOGO: 1` in workflow `env`, plus the version shape check
 - [ ] `setup-dotnet` at `10.0.x`; action majors consistent with the rest of the org
 - [ ] `Directory.Packages.props` (central package management)
+- [ ] no `Microsoft.SourceLink.GitHub` reference (the SDK supplies it), and
+      `-p:ContinuousIntegrationBuild=true` on the CI build line
 - [ ] `.slnx` rather than `.sln`
 - [ ] a `dotnet test` step (several publishing repos still have none)
 - [ ] publish gated on the default branch + `push`, pushing to `-s nuget.org`
