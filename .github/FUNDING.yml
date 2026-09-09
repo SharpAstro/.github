@@ -1,0 +1,4 @@
+# The org-wide sponsor button. GitHub applies this to every SharpAstro repository that does
+# not carry its own .github/FUNDING.yml, so this file is the one place both links are named.
+github: SharpAstro
+buy_me_a_coffee: sharpastro
