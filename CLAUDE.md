@@ -73,7 +73,8 @@ examples, and the default-branch drift (`master` for `Codecs`, `FITS.Lib`, `LALR
 `LALR.CC` publishes on a `v*` tag, not on push).
 
 Read it before: adding or re-scaffolding a repo's CI, bumping a dependency pin,
-publishing, or judging whether a version looks wrong.
+publishing, judging whether a version looks wrong, or adding a step that signs, strips or
+patches a build output (outputs are hard links into the NuGet cache and the source tree).
 
 The `repos` skill (`/repos`) reports across all sibling repos at once — git/dirty/sync
 state and build-pattern conformance, pin currency vs published and about-to-be-published

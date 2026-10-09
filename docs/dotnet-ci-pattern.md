@@ -158,6 +158,39 @@ The PDB must carry the document mapping and the nuspec the commit:
 A repo with a lock file (`FITS.Lib`) needs `dotnet restore --force-evaluate` in the same commit:
 locked-mode restore on CI fails NU1004 on a lock that still lists a reference the project dropped.
 
+## Build outputs are hard links
+
+Every repo's `Directory.Build.props` sets four MSBuild properties to `true`:
+`CreateHardLinksForCopyLocalIfPossible`, `CreateHardLinksForCopyFilesToOutputDirectoryIfPossible`,
+`CreateHardLinksForCopyAdditionalFilesIfPossible` and `CreateHardLinksForPublishFilesIfPossible`. A
+file a build copies into `bin` or a publish folder is then a hard link to the file it came from: the
+project's own `obj` output, a referenced project's `bin`, a content file in the repo, or the file in
+the NuGet global packages folder. Where a link cannot be made (another volume, a file system without
+links) MSBuild copies as before. The properties carry no comment, like the rest of that file; the
+reasoning is here.
+
+The reason is disk. On 2026-10-09 `TianWen.Lib.dll` (65 MB) sat in 45 `bin` folders and `tianwen/src`
+held 12.4 GB of `bin` and `obj`. Rebuilt clean in Debug and Release with links, the same outputs took
+1.86 GB on disk against 6.6 GB as copies.
+
+One file under several names is safe because nothing writes into one in place:
+
+- **A rebuild makes a new file.** The compiler and MSBuild's `Copy` delete the old name before writing,
+  so the other names keep the old file. Checked with the consuming app RUNNING and the library loaded:
+  the library rebuilt, and the app's own copy failed with MSB3021 exactly as it does without links,
+  only sooner (no MSB3026 retries). A link never crosses configurations, so a Release run holds no
+  file a Debug rebuild writes.
+- **A package file in `bin` IS the NuGet cache's file, and a content file IS the repo's tracked file.**
+  Writing into either changes the cache or the source. Nothing does: `tianwen`'s `build-dmg.sh` signs a
+  `cp -R` copy of the publish folder, its MSIX lane signs only the package, no repo's build runs an
+  `Exec` over its output, no other workflow signs or strips, and the tests only read the fixtures they
+  copy to output. **A new step that signs, strips or patches an output file must copy it first.**
+
+The saving arrives with a clean build: MSBuild skips a file whose size and time are unchanged, so a
+copy already in `bin` stays a copy until it is written again. `LALR.CC` is left out (it is the shared
+shape's deliberate exception), as are the repos with no `Directory.Build.props` at all
+(`FreeTypeBindings`, `canon-edsdk`, `openphd2-multiscope`, `skyfi-forwarder`).
+
 ## Conformance checklist for a repo
 
 - [ ] `<VersionMajorMinor>` in root `Directory.Build.props`, and CI reads it via
@@ -167,6 +200,8 @@ locked-mode restore on CI fails NU1004 on a lock that still lists a reference th
 - [ ] `Directory.Packages.props` (central package management)
 - [ ] no `Microsoft.SourceLink.GitHub` reference (the SDK supplies it), and
       `-p:ContinuousIntegrationBuild=true` on the CI build line
+- [ ] the four `CreateHardLinksFor*IfPossible` properties `true` in `Directory.Build.props`, and no
+      build or packaging step that writes into a `bin` or publish file in place
 - [ ] `.slnx` rather than `.sln`
 - [ ] a `dotnet test` step (several publishing repos still have none)
 - [ ] publish gated on the default branch + `push`, pushing to `-s nuget.org`
