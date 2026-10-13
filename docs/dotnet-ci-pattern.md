@@ -160,14 +160,24 @@ locked-mode restore on CI fails NU1004 on a lock that still lists a reference th
 
 ## Build outputs are hard links
 
-Every repo's `Directory.Build.props` sets four MSBuild properties to `true`:
+Every repo's `Directory.Build.props` sets five MSBuild properties to `true`:
 `CreateHardLinksForCopyLocalIfPossible`, `CreateHardLinksForCopyFilesToOutputDirectoryIfPossible`,
-`CreateHardLinksForCopyAdditionalFilesIfPossible` and `CreateHardLinksForPublishFilesIfPossible`. A
-file a build copies into `bin` or a publish folder is then a hard link to the file it came from: the
-project's own `obj` output, a referenced project's `bin`, a content file in the repo, or the file in
-the NuGet global packages folder. Where a link cannot be made (another volume, a file system without
-links) MSBuild copies as before. The properties carry no comment, like the rest of that file; the
-reasoning is here.
+`CreateHardLinksForCopyAdditionalFilesIfPossible`, `CreateHardLinksForAdditionalFilesIfPossible` and
+`CreateHardLinksForPublishFilesIfPossible`. A file a build copies into `bin` or a publish folder is
+then a hard link to the file it came from: the project's own `obj` output, a referenced project's
+`bin`, an item the project marks `CopyToOutputDirectory` (a test fixture, a font, a baseline, a native
+library), or the file in the NuGet global packages folder. Where a link cannot be made (another volume,
+a file system without links) MSBuild copies as before. The properties carry no comment, like the rest
+of that file; the reasoning is here.
+
+**The third and fourth differ by one word, and only the fourth links content.**
+`CreateHardLinksForAdditionalFilesIfPossible` is the one the `CopyToOutputDirectory` copy reads
+(`_CopyOutOfDateSourceItemsToOutputDirectory` and its `Always` and `IfDifferent` siblings, plus
+`_CopyAppConfigFile` and `_CopyManifestFiles`); `CreateHardLinksForCopyAdditionalFilesIfPossible` covers
+`AddModules`, COM wrappers and `NativeReferenceFile`, which no repo here has. The pattern set only the
+latter until 2026-10-13, so every fixture and font was still a copy while this section said otherwise.
+Measured with `fsutil hardlink list`: a `DIR.Lib.Tests` font fixture has two links (the source and
+`bin`) when built with the property and one without, and so does a `tianwen` CR2 fixture.
 
 The reason is disk. On 2026-10-09 `TianWen.Lib.dll` (65 MB) sat in 45 `bin` folders and `tianwen/src`
 held 12.4 GB of `bin` and `obj`. Rebuilt clean in Debug and Release with links, the same outputs took
@@ -184,7 +194,11 @@ One file under several names is safe because nothing writes into one in place:
   Writing into either changes the cache or the source. Nothing does: `tianwen`'s `build-dmg.sh` signs a
   `cp -R` copy of the publish folder, its MSIX lane signs only the package, no repo's build runs an
   `Exec` over its output, no other workflow signs or strips, and the tests only read the fixtures they
-  copy to output. **A new step that signs, strips or patches an output file must copy it first.**
+  copy to output. The one write is a baseline re-bless (`DIR.Lib`, `Fonts.Lib`, the `Codecs` JPEG
+  golden), which writes the source's own bytes, so a link only spares `bin` a stale copy. FITS.Lib's
+  tests open `testdocs` files read-write and never write them; a test that changes a fixture copies it
+  to a file of its own first, as `FitsReaderTest` does. **A new step that signs, strips or patches an
+  output file must copy it first, and so must a test that writes a fixture.**
 
 The saving arrives with a clean build: MSBuild skips a file whose size and time are unchanged, so a
 copy already in `bin` stays a copy until it is written again. `LALR.CC` is left out (it is the shared
@@ -200,8 +214,8 @@ shape's deliberate exception), as are the repos with no `Directory.Build.props` 
 - [ ] `Directory.Packages.props` (central package management)
 - [ ] no `Microsoft.SourceLink.GitHub` reference (the SDK supplies it), and
       `-p:ContinuousIntegrationBuild=true` on the CI build line
-- [ ] the four `CreateHardLinksFor*IfPossible` properties `true` in `Directory.Build.props`, and no
-      build or packaging step that writes into a `bin` or publish file in place
+- [ ] the five `CreateHardLinksFor*IfPossible` properties `true` in `Directory.Build.props`, and no
+      build, packaging or test step that writes into a `bin` or publish file in place
 - [ ] `.slnx` rather than `.sln`
 - [ ] a `dotnet test` step (several publishing repos still have none)
 - [ ] publish gated on the default branch + `push`, pushing to `-s nuget.org`
