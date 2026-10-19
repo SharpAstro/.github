@@ -64,6 +64,15 @@ bump is that one line — `1.0 → 1.1` additive, `1.x → 2.x` breaking. Everyt
 (`VersionPrefix`, `AssemblyVersion`, the workflow) derives from it and must not be
 hand-edited. `Lzip.Lib` is the reference implementation.
 
+## The framework has consumers outside this org
+
+DIR.Lib, SdlVulkan.Renderer, Console.Lib, AppShell, LAN.Lib, WebGl.Renderer, Fonts.Lib and
+SharpAstro.Png are built on by apps in `sebgod/` as well as tianwen, pilot, FC.SDK and LALR.CC,
+and the `sebgod/` root's library folders are junctions to the clones here, so a library edit
+reaches all of them at once. `.github/docs/framework-consumers.md` lists them and says where
+cross-repo work is tracked (issues in this repo labelled `framework`). **Read it before changing a
+library's API**, and build the affected consumers before calling the change done.
+
 ## Fuller pattern write-up
 
 `.github/docs/dotnet-ci-pattern.md` — in this repo, beside this file — holds the rest:
