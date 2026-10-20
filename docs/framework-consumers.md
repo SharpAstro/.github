@@ -1,7 +1,7 @@
 # Who builds on the framework
 
-The SharpAstro UI and host libraries (DIR.Lib, SdlVulkan.Renderer, Console.Lib, AppShell, LAN.Lib, WebGl.Renderer,
-Fonts.Lib, SharpAstro.Png) have consumers outside this org as well as in it. A change to one of them is a change to
+The SharpAstro UI and host libraries (DIR.Lib, SdlVulkan.Renderer, Console.Lib, AppShell, LAN.Lib, Node.Lib,
+WebGl.Renderer, Fonts.Lib, SharpAstro.Png) have consumers outside this org as well as in it. A change to one of them is a change to
 every app below. This page lists those apps, so a library change gets built and checked against all of them, not
 only the one that asked for it.
 
@@ -19,13 +19,14 @@ What each library builds on, as its project references say:
 | AppShell | nothing of the stack (pure managed, SDL-free) |
 | SdlVulkan.Renderer | DIR.Lib, AppShell, SharpAstro.Png |
 | LAN.Lib | nothing of the stack |
+| Node.Lib (and Node.Lib.Hosting) | nothing of the stack (the per-user node's socket, lock and Kestrel hosting; .github#5) |
 
 ## The consumers
 
 | App | Repo | Uses |
 | --- | --- | --- |
-| tianwen | SharpAstro/tianwen | DIR.Lib, SdlVulkan.Renderer, Console.Lib, AppShell, LAN.Lib, WebGl.Renderer, SharpAstro.Png |
-| pilot v2 | SharpAstro/pilot (`src/Pilot.Gui`) | DIR.Lib, SdlVulkan.Renderer, AppShell, SharpAstro.Png |
+| tianwen | SharpAstro/tianwen | DIR.Lib, SdlVulkan.Renderer, Console.Lib, AppShell, LAN.Lib, Node.Lib (tianwen#1703), WebGl.Renderer, SharpAstro.Png |
+| pilot v2 | SharpAstro/pilot (`src/Pilot.Gui`, `src/Pilot.Tui`, `src/Pilot.Node`) | DIR.Lib, SdlVulkan.Renderer, Console.Lib, AppShell, LAN.Lib, Node.Lib, SharpAstro.Png |
 | FC.SDK viewer | SharpAstro/FC.SDK (`src/FC.SDK.Viewer`) | DIR.Lib, SdlVulkan.Renderer, AppShell |
 | LALR.CC TUI | SharpAstro/LALR.CC (`Tui`) | DIR.Lib, Console.Lib |
 | chess | sebgod/chess | DIR.Lib, SdlVulkan.Renderer, Console.Lib, AppShell, LAN.Lib, WebGl.Renderer, SharpAstro.Png |
