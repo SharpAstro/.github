@@ -73,6 +73,20 @@ reaches all of them at once. `.github/docs/framework-consumers.md` lists them an
 cross-repo work is tracked (issues in this repo labelled `framework`). **Read it before changing a
 library's API**, and build the affected consumers before calling the change done.
 
+## UI changes
+
+`.github/docs/ui-changes.md`, beside this file, is the checklist for any change a person sees: a pixel GUI, a
+terminal UI or a web page. In short:
+- **Look at a capture** at real sizes before calling it done; a test that a property is set is not a look.
+- **Check contrast** against the colour the element is actually drawn on.
+- **Never cut text silently**: wrap it, or ellipsis plus the whole text on hover.
+- **One height and one middle** for the controls on a row.
+- **One source** for every value, colour and component.
+- **The right control** for the job.
+- **No clutter**, and **nothing moving under the pointer**.
+
+Read it before changing a view, and put before and after captures in the PR.
+
 ## Fuller pattern write-up
 
 `.github/docs/dotnet-ci-pattern.md` — in this repo, beside this file — holds the rest:
