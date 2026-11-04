@@ -23,7 +23,7 @@ repo-specific commands — **read it first and defer to it.** (Absent in `FITS.L
 Repos target `net10.0` (several also `netstandard2.0`) and CI pins `setup-dotnet` to
 `10.0.x`. Three repos carry a `global.json`: `DIR.Lib` and `Serial.Lib` only to select
 the Microsoft.Testing.Platform test runner; `tianwen` also sets an SDK floor of
-`10.0.400` (`rollForward: latestFeature`), which its CodeAnalysis 5.9.0 pin requires. The solution sits at the repo root or under `src/`,
+`10.0.403` (`rollForward: latestFeature`): its CodeAnalysis 5.9.0 pin needs 10.0.400+, and 10.0.403 carries the CVE-2026-111497 (Brotli) runtime fix. The solution sits at the repo root or under `src/`,
 as `.sln` or `.slnx` — both are in use.
 
 ```bash

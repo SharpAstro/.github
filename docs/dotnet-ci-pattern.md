@@ -99,7 +99,8 @@ the publish dropped files, the pin resolved something old — are both wrong. Sa
 `-c Release`, and it compiles.
 
 Switches in use: `UseLocalConsoleLib`, `UseLocalDirLib`, `UseLocalFontsLib`,
-`UseLocalLalrCc`, `UseLocalShapingLib`, `UseLocalSharpAstroCodecs`,
+`UseLocalLalrCc`, `UseLocalShapingLib`, `UseLocalSharpAstroCodecs`, `UseLocalTianWen`
+(openphd2-multiscope),
 `UseLocalSharpAstroPng`.
 
 **Two path depths, easy to mix up.** A project at `<repo>/src/<proj>/` has
