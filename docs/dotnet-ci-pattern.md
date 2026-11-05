@@ -70,6 +70,36 @@ for additive features, `1.x -> 2.x` for breaking API changes.
 Publishing is artifact-mediated on purpose: packages are built once and pushed
 unchanged, so what is tested is exactly what ships.
 
+**A release job downloads by name or `pattern:`, never the whole run.** `download-artifact`
+with no `name` or `pattern` fetches every artifact the run produced, and `merge-multiple`
+flattens them into one directory, so `gh release create ... dist/*` attaches whatever a job
+added later. openphd2-multiscope's release broke exactly that way (2026-11-05) once its
+e2e job uploaded logs: an empty `xvfb.out` failed the asset upload with `HTTP 400: Bad
+Content-Length`, after the version number was spent. Unfiltered today, so one new artifact
+away from the same failure: Console.Lib `mdcat-release.yml`, pilot `dotnet.yml` and
+`release.yml`, tianwen `dotnet.yml`'s release-archives job.
+
+### Testing against a real outside program
+
+openphd2-multiscope's `e2e` job runs its proxy against a real PHD2 and gates publishing on it
+(`tests/e2e/run.sh`). What it took, for the next repo that wants the same (tianwen's PHD2
+driver, say):
+
+- **Install from the vendor's Linux package** (PHD2: `ppa:pch/phd2`, plus `ppa:mutlaqja/ppa`
+  for the `libindi1` it links).
+- **Use a container when the runner's Ubuntu is too old for the packages.** The INDI PPA
+  builds only for 26.04 now, so the job runs in `container: ubuntu:26.04` on `ubuntu-latest`,
+  installing `software-properties-common`, `libicu-dev`, `git` and `python3` itself before
+  `setup-dotnet`.
+- **A desktop program runs on `Xvfb`**, with its settings written beforehand so it starts
+  into its main window instead of a first-run wizard nobody can click.
+- **Upload the program's logs and a screenshot of the virtual screen with `if: always()`**,
+  so a dialog it stopped on can be seen. Name that artifact so the release job's `pattern:`
+  excludes it (above).
+- **Judge by events, not a state snapshot.** A simulator wanders (PHD2's loses its star and
+  briefly reports `LostLock` while still guiding), so a check that reads one state at one
+  moment is flaky; checking that the event that would mean failure never came is not.
+
 ## Local sibling checkouts override packages
 
 Eight repos (`Console.Lib`, `DIR.Lib`, `FC.SDK`, `Fonts.Lib`, `LALR.CC`,
