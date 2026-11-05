@@ -25,7 +25,7 @@ A .NET ecosystem for astrophotography automation — from hardware control to fu
 
 ### Utilities
 
-- **[openphd2-multiscope](https://github.com/SharpAstro/openphd2-multiscope)** — Multiplexing proxy for PHD2's JSON-RPC event API, enabling synchronized dithering across a multi-telescope setup.
+- **[openphd2-multiscope](https://github.com/SharpAstro/openphd2-multiscope)** — Lets several imaging programs (N.I.N.A., SGP, APT; one per camera on a multi-scope rig) share one PHD2, and dithers only once all of them asked, so no program's dither ruins another's exposure. One self-contained download for Windows, Linux or macOS; no TianWen needed. Built on TianWen's PHD2 driver and tested in CI against a real PHD2.
 - **[usbreset](https://github.com/SharpAstro/usbreset)** — Small USB reset tool, handy for recovering wedged cameras/focusers without a physical replug.
 
 ## General-purpose .NET libraries
