@@ -108,3 +108,18 @@ user-level skill (`~/.claude/skills/repos/`), not part of this repo, because it 
 several org roots; this repo only supplies the SharpAstro pattern doc it reads. Prefer
 it over hand-rolling a sweep; use its `worklist.sh` for release order rather than
 inferring one from package names.
+
+## A repeating failure is an alarm
+
+The owner's rule (2026-11-07), for every session in this org, controller and workers alike.
+
+- **The second time a failure repeats, stop and find its cause that hour.** A green PR dropped from the merge queue
+  again, a leg rechecking for hours, the same test failing on another branch, the machine slow again: measure it
+  (step timings, the same tests on both OSes, a trace) and fix it or file it with the numbers.
+- **A flake is a bug we have not fixed.** Never call a failure flaky, rerun it until green, or report a green rerun as
+  fixed. Read the message, group failures by cause, and file each cause.
+- **Do not raise a limit to hide a broken thing under it.** A timeout, a time bound or a retry count goes up only when
+  the measurement says the work really needs it. A 26-minute CI job behind a 20-minute queue timeout is a slow job to
+  fix (pilot #813: Windows ran the same tests 11x slower than Linux), not a timeout to raise.
+- **One fix per problem.** Once a flight or another session owns a fix, steer that one (its brief, a go-around); do not
+  write a second fix beside it.
