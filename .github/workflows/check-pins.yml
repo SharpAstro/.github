@@ -1,0 +1,59 @@
+# Reusable: checks a repo's NuGet pins against nuget.org (scripts/check-pins.py, docs/pinning.md).
+# Every pin: is a newer Major.Minor out in the same major? Every pinned package: what was it BUILT
+# against (its published .nuspec), compared with what the repo pins? A library built against an older
+# MAJOR of a shared dependency (DIR.Lib, say) compiles in the app and fails at run time.
+#
+# Call it as a job of its own:
+#
+#   pins:
+#     uses: SharpAstro/.github/.github/workflows/check-pins.yml@main
+#     # with:
+#     #   props: src/Directory.Packages.props   # default: Directory.Packages.props
+#     #   fail-on-major: true                   # default: false (warn and report only)
+#
+# Needs nothing but nuget.org: no secrets, no sibling clones. This repo is public, so a repo outside
+# the org (sebgod/chess) can call it too.
+name: check-pins
+
+on:
+  workflow_call:
+    inputs:
+      props:
+        description: The Directory.Packages.props to check, relative to the caller's repo root.
+        type: string
+        default: Directory.Packages.props
+      fail-on-major:
+        description: Fail the job on a MAJOR gap instead of only warning.
+        type: boolean
+        default: false
+      only:
+        description: Comma-separated package-name prefixes to limit the check to (empty means every pin).
+        type: string
+        default: ''
+
+jobs:
+  check-pins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Fetch the checker
+        uses: actions/checkout@v7
+        with:
+          repository: SharpAstro/.github
+          path: .org-ci
+      - name: Check pins
+        env:
+          PROPS: ${{ inputs.props }}
+          FAIL_ON_MAJOR: ${{ inputs.fail-on-major }}
+          ONLY: ${{ inputs.only }}
+        run: |
+          args=("$PROPS" --markdown)
+          [ -n "$ONLY" ] && args+=(--only "$ONLY")
+          status=0
+          python3 .org-ci/scripts/check-pins.py "${args[@]}" > pins.md || status=$?
+          cat pins.md >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" -ne 0 ]; then
+            echo "::warning::A library is built against a different MAJOR of a dependency this repo pins; see the summary and SharpAstro/.github docs/pinning.md."
+            [ "$FAIL_ON_MAJOR" = "true" ] && exit "$status"
+          fi
+          exit 0

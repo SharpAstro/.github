@@ -251,7 +251,9 @@ shape's deliberate exception), as are the repos with no `Directory.Build.props` 
 - [ ] a `dotnet test` step (several publishing repos still have none)
 - [ ] publish gated on the default branch + `push`, pushing to `-s nuget.org`
 - [ ] every in-org `PackageReference` pinned to the producer's current `MAJOR.MINOR.*`
-      (a minor behind is fine mid-release; a major behind needs a decision)
+      (a minor behind is fine mid-release; a major behind needs a decision), checked in CI by the reusable
+      `check-pins` workflow, which also catches a pinned library BUILT against an older major of a dependency
+      the repo pins ([pinning.md](pinning.md))
 
 ## Only packable projects propagate
 
