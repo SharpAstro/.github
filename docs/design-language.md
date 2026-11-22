@@ -84,7 +84,25 @@ Every control is drawn in each state it can reach, in light and in dark:
 A state set by an authority (a node, a device) shows the authority's answer, not the click: a switch flips when the
 change is confirmed.
 
-## 7. Done means captured
+## 7. Themable, not hard-coded
+
+Today every app and platform gets one look. Later, a Mac (or a person) may want its controls differently: other
+radii, no rings, a different switch, an accent button style of its own. That must be a new theme, not an edit to
+every control.
+
+- **A control's look comes only from the theme.** Colours from `UiPalette` roles, sizes and radii from
+  `UiMetrics`, and each kind's look (fill, ring, radius, padding, chevron, the shape of a switch) from a per-kind
+  style on `UiTheme`, with defaults. A control builder holds no colour, size or radius literal, and a test holds it
+  to that.
+- **This page is the default theme.** A platform theme (Windows, macOS, Linux) or an app's own theme overrides
+  roles and styles; it does not fork controls. An app picks its theme once, at startup.
+- **A role that is not stated falls back on purpose, and says so.** A role added later defaults to what the
+  palette meant before it existed, and the fallback is written in its doc comment. No role falls back to the
+  accent unless being the accent is its meaning: `HeaderText` turning blue was the bug that taught us this.
+- **A theme is checked, not trusted.** The capture tests in section 8 run for every theme an app ships, so a new
+  theme gets the same contrast checks as the default.
+
+## 8. Done means captured
 
 A new or changed control is done when CPU-rendered tests draw it in every state on a light and a dark palette, each
 with a light accent (a pale teal such as `#00e5d5`, which needs dark text) and a dark one (a deep blue such as
