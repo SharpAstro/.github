@@ -64,6 +64,8 @@ A test that a property is set is not a test that it looks right. Before a UI cha
 
 ## 6. The right control
 
+What each kind of control looks like, where the accent goes, and the light and dark rules: `design-language.md`, beside this page.
+
 | The person wants to | Use | Not |
 | --- | --- | --- |
 | turn a setting on or off | a switch (track and knob) | a button that stays lit (DIR.Lib#156) |
