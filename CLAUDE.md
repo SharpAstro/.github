@@ -76,7 +76,8 @@ library's API**, and build the affected consumers before calling the change done
 ## UI changes
 
 `.github/docs/ui-changes.md`, beside this file, is the checklist for any change a person sees: a pixel GUI, a
-terminal UI or a web page. In short:
+terminal UI or a web page. `.github/docs/design-language.md` says what the controls are, where the accent goes and
+that light and dark are designed together. In short:
 - **Look at a capture** at real sizes before calling it done; a test that a property is set is not a look.
 - **Check contrast** against the colour the element is actually drawn on.
 - **Never cut text silently**: wrap it, or ellipsis plus the whole text on hover.
