@@ -30,6 +30,28 @@ The `.ipa` is unsigned on purpose: AltStore signs it on install with the tester'
 - A Windows popup that LSA protection blocked `mdnsNSP.dll` is harmless. Never turn LSA protection off for it.
 - **pymobiledevice3**, for files and logs: `pip install --user pymobiledevice3`, run as `python -m pymobiledevice3`.
 
+## Run AltServer on demand, not all the time
+
+AltServer's installer adds it to Windows startup (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, value
+`AltServer`), so it runs for as long as the PC is up, and left running it degrades. On 2026-11-25, after 11 days up,
+it sat at a full CPU core, and every AltStore install failed about two minutes in. The iPad's log said
+`AltStore{AltStore}: Failed to connect to remote AltServer <PC> ... (Network.NWError error 54 - Connection reset by peer)`;
+AltStore itself showed nothing useful, and AltServer on Windows keeps no log. After a restart the same install went
+straight through.
+
+- **Start AltServer when you need it** (installing, Refresh All, re-installing AltStore) and quit it from its tray
+  menu afterwards. Turn the autostart off once: Task Manager > Startup apps > AltServer > Disable, or
+  `Remove-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name AltServer`.
+- **The cost:** AltStore's background refresh needs AltServer running. It was never reliable on iPadOS anyway, so
+  refresh by hand: start AltServer, AltStore > My Apps > Refresh All, at least every 6 days.
+- **When an install fails or stalls, restart AltServer first** (quit from the tray, or
+  `Stop-Process -Name AltServer`, then start it again), before suspecting the build.
+- **To see why an install failed**, read AltStore's own lines from the iPad's log while it runs:
+  `python -m pymobiledevice3 syslog live --udid <udid> | grep "AltStore{AltStore}"`.
+
+AltStore on the iPad always reaches AltServer over the network, even with the cable in; the cable only speeds up
+AltServer's side of the install.
+
 ## The iPad, once
 
 1. AltServer's tray icon > **Install AltStore** > the iPad. Sign in with a **personal** Apple ID (a free one is
@@ -64,9 +86,12 @@ Keep the bundle id: the install then replaces the app in place and keeps its dat
    ```
    This needs `UIFileSharingEnabled` in the app's `Info.plist`, which the log below needs anyway. AirDrop or iCloud
    Drive into Files works too.
-2. AltStore > My Apps > **+** > On My iPad > (app) > the `.ipa`. The picker may open on another folder first, with
-   older `.ipa` files in it; browse to the app's own. Over Wi-Fi it takes a minute or two (AltStore re-signs, sends
-   the whole app to AltServer and back). If it stalls, plug in USB; do not cancel.
+2. With AltServer running (see above): AltStore > My Apps > **+** > On My iPad > (app) > the `.ipa`. The picker may
+   open on another folder first, with older `.ipa` files in it; browse to the app's own. Over Wi-Fi it takes a minute
+   or two (AltStore re-signs, sends the whole app to AltServer and back).
+3. **Check it took.** A failed install leaves the old app in place, looking exactly as before. The app's log header
+   (below) or its signing profile tells: `python -m pymobiledevice3 provision list` shows a new profile created at the
+   time of the install. If nothing changed, restart AltServer and try again.
 
 ## Logs and crash reports
 
