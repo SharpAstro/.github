@@ -88,6 +88,13 @@ that light and dark are designed together. In short:
 
 Read it before changing a view, and put before and after captures in the PR.
 
+## iOS apps on a device
+
+`.github/docs/ios-device.md` is how an app's iOS build gets onto an iPad from the Windows desktop (AltStore with a free
+Apple ID, no developer membership) and how its log and crash reports come back (`python -m pymobiledevice3`). Read it
+before installing, debugging on a device, or setting up the next iOS app (TianWen): the Windows setup has several
+traps, a sleeping iPad looks like a broken one, and after a missed 7-day refresh the apps must not be deleted.
+
 ## Fuller pattern write-up
 
 `.github/docs/dotnet-ci-pattern.md` — in this repo, beside this file — holds the rest:
